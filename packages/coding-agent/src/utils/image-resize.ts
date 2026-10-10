@@ -70,7 +70,9 @@ async function resizeImageInWorker(
 			);
 		});
 	} finally {
-		void worker.terminate().catch(() => undefined);
+		// Await termination so a serial resize never overlaps this worker's teardown
+		// with the next worker's bootstrap (aborts the process on macOS / Node 24).
+		await worker.terminate().catch(() => undefined);
 	}
 }
 
